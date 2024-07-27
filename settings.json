@@ -1,6 +1,17 @@
 {
-    "frame_size": [600, 600],
-    "text_ctrl_size": [400, 150],
-    "info_display_size": [400, 150]
-  }
-  
+    "client_id": "test",
+    "client_secret": "test",
+    "user_agent": "test",
+    "query_text_size": [
+        400,
+        100
+    ],
+    "result_text_size": [
+        400,
+        200
+    ],
+    "frame_size": [
+        600,
+        400
+    ]
+}

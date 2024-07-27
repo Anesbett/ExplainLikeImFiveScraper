@@ -1,145 +1,87 @@
 import wx
-import wx.richtext as rt
-import json
-
+from webscraperLogic import QueryEngine
+from Menu import MenuBar
 
 class Frame(wx.Frame):
-    """
-    A Frame that says Hello World and allows user input
-    """
-
-    def __init__(self, *args, **kw):
-        # Load configuration settings
-        self.config = self.load_config("settings.json")
-
-        # ensure the parent's __init__ is called
+    def __init__(self, query_engine, *args, **kw):
         super(Frame, self).__init__(*args, **kw)
-
-        # create a panel in the frame
+        
+        # Store the query engine instance
+        self.query_engine = query_engine
+        
+        # Create a panel to hold the UI elements
         pnl = wx.Panel(self)
 
-        # put some text with a larger bold font on it
-        st = wx.StaticText(pnl, label="Hello! Welcome to the webscraper application!")
-        font = st.GetFont()
+        # Load sizes from the configuration file
+        query_text_size = self.query_engine.config['query_text_size']
+        result_text_size = self.query_engine.config['result_text_size']
+        frame_size = self.query_engine.config['frame_size']
+        
+        # Create a static text control for the welcome message
+        welcome_text = wx.StaticText(pnl, label="Welcome to the r/ExplainLikeImFive Scraper!")
+        font = welcome_text.GetFont()
         font.PointSize += 10
-        font = font.Bold()
-        st.SetFont(font)
+        welcome_text.SetFont(font)
+        
+        # Create a static text control for the helper message
+        helper_text = wx.StaticText(pnl, label="Please enter a query to search the r/ExplainLikeImFive subreddit...")
+        font = helper_text.GetFont()
+        font.PointSize += 1
+        helper_text.SetFont(font)
 
-        # Create a resizable rich text entry and a button
-        self.query_text = rt.RichTextCtrl(
-            pnl, style=wx.TE_MULTILINE | wx.TE_RICH2, size=self.config["text_ctrl_size"]
-        )
-        submit_btn = wx.Button(pnl, label="Submit")
-        submit_btn.Bind(wx.EVT_BUTTON, self.onSubmit)
+        # Create the text control for user input
+        self.query_text = wx.TextCtrl(pnl, style=wx.TE_MULTILINE, size=query_text_size)
+        
+        # Create the text control for displaying results
+        self.result_text = wx.TextCtrl(pnl, style=wx.TE_MULTILINE | wx.TE_READONLY, size=result_text_size)
+        
+        # Create the search button and bind the click event to the search method
+        search_button = wx.Button(pnl, label="Search")
+        search_button.Bind(wx.EVT_BUTTON, self.on_search)
+        
+        # Create a vertical box sizer to manage the layout of the UI elements
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(welcome_text, 0, wx.EXPAND | wx.ALL, 5)
+        sizer.Add(helper_text, 0, wx.EXPAND | wx.ALL, 5)
+        sizer.Add(self.query_text, 1, wx.EXPAND | wx.ALL, 5)
+        sizer.Add(search_button, 0, wx.EXPAND | wx.ALL, 5)
+        sizer.Add(self.result_text, 2, wx.EXPAND | wx.ALL, 5)
+        
+        # Set the sizer for the panel
+        pnl.SetSizer(sizer)
+        
+        # Set the frame size from the configuration file
+        self.SetSize(frame_size)
+        
+        # Set the frame title
+        self.SetTitle("Reddit Query App")
+        
+        self.SetMenuBar(MenuBar(self, query_engine))
 
-        # Create a box to display returned information
-        self.info_display = wx.TextCtrl(
-            pnl,
-            style=wx.TE_MULTILINE | wx.TE_READONLY,
-            size=self.config["info_display_size"],
-        )
-
-        # Create a sizer to manage the layout of child widgets
-        vbox = wx.BoxSizer(wx.VERTICAL)
-        vbox.Add(st, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
-        vbox.Add(self.query_text, proportion=0, flag=wx.EXPAND | wx.ALL, border=10)
-        vbox.Add(submit_btn, flag=wx.ALL, border=10)
-
-        # Add space for displaying the additional information
-        vbox.Add(self.info_display, proportion=1, flag=wx.EXPAND | wx.ALL, border=10)
-
-        pnl.SetSizer(vbox)
-
-        # Set the initial size of the frame
-        self.SetSize(self.config["frame_size"])
-
-        # create a menu bar
-        self.makeMenuBar()
-
-        # and a status bar
-        self.CreateStatusBar()
-        self.SetStatusText("Welcome to wxPython!")
-
-    def load_config(self, file_path):
-        """Load configuration settings from a JSON file."""
-        with open(file_path, "r") as f:
-            return json.load(f)
-
-    def makeMenuBar(self):
-        """
-        A menu bar is composed of menus, which are composed of menu items.
-        This method builds a set of menus and binds handlers to be called
-        when the menu item is selected.
-        """
-
-        # Make a file menu with Hello and Exit items
-        fileMenu = wx.Menu()
-        # The "\t..." syntax defines an accelerator key that also triggers
-        # the same event
-        helloItem = fileMenu.Append(
-            -1,
-            "&Hello...\tCtrl-H",
-            "Help string shown in status bar for this menu item",
-        )
-        fileMenu.AppendSeparator()
-        # When using a stock ID we don't need to specify the menu item's
-        # label
-        exitItem = fileMenu.Append(wx.ID_EXIT)
-
-        # Now a help menu for the about item
-        helpMenu = wx.Menu()
-        aboutItem = helpMenu.Append(wx.ID_ABOUT)
-
-        # Make the menu bar and add the two menus to it. The '&' defines
-        # that the next letter is the "mnemonic" for the menu item. On the
-        # platforms that support it those letters are underlined and can be
-        # triggered from the keyboard.
-        menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu, "&File")
-        menuBar.Append(helpMenu, "&Help")
-
-        # Give the menu bar to the frame
-        self.SetMenuBar(menuBar)
-
-        # Finally, associate a handler function with the EVT_MENU event for
-        # each of the menu items. That means that when that menu item is
-        # activated then the associated handler function will be called.
-        self.Bind(wx.EVT_MENU, self.OnHello, helloItem)
-        self.Bind(wx.EVT_MENU, self.OnExit, exitItem)
-        self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
-
-    def OnExit(self, event):
-        """Close the frame, terminating the application."""
-        self.Close(True)
-
-    def OnHello(self, event):
-        """Say hello to the user."""
-        wx.MessageBox("Hello again from wxPython")
-
-    def OnAbout(self, event):
-        """Display an About Dialog"""
-        wx.MessageBox(
-            "This is a wxPython Hello World sample",
-            "About Hello World 2",
-            wx.OK | wx.ICON_INFORMATION,
-        )
-
-    def onSubmit(self, event):
-        """Handle the submit button click event"""
+    def on_search(self, event):
+        """Handle the search button click event."""
+        # Get the query from the user input text control
         query = self.query_text.GetValue()
-        # Here you would make the API call and process the response
-        # Append the query to the info_display with a new line
-        current_text = self.info_display.GetValue()
-        new_text = f"{query}\n\nProcessing your query..."
-        self.info_display.SetValue(
-            f"Your query: {current_text}{new_text}\n" + "---------------"
-        )
-
+        
+        # Get the search results from the query engine
+        results = self.query_engine.get_reddit_posts(query)
+        
+        # Format the results into a string
+        result_text = "\n\n".join([f"Title: {post['title']}\nScore: {post['score']}\nURL: {post['url']}\n{'-'*20}" for post in results])
+        
+        # Display the results in the result text control
+        self.result_text.SetValue(result_text)
 
 if __name__ == "__main__":
-    # When this module is run (not imported) then create the app, the
-    # frame, show it, and start the event loop.
+    # Create the application instance
     app = wx.App()
-    frm = Frame(None, title="Hello World 2")
+    
+    # Create the query engine instance
+    query_engine = QueryEngine()
+    
+    # Create and show the main frame
+    frm = Frame(query_engine, None)
     frm.Show()
+    
+    # Start the application main loop
     app.MainLoop()
