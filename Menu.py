@@ -40,7 +40,7 @@ class MenuBar(wx.MenuBar):
             self.query_engine.save_config()
 
     def on_set_user_agent(self, event):
-        """Handle other settings."""
+        """Handle setting the user agent."""
         dlg = wx.TextEntryDialog(self.frame, "Enter User Agent:", "Set User Agent")
         if dlg.ShowModal() == wx.ID_OK:
             user_agent = dlg.GetValue()
