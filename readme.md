@@ -70,3 +70,8 @@ The application uses the following environment variables, which should be set in
 - `CLIENT_ID`: Your Reddit API client ID.
 - `CLIENT_SECRET`: Your Reddit API client secret.
 - `USER_AGENT`: A user agent string for your Reddit application.
+
+# My idea
+Here is my idea that I had as I just wanted to practice python and create something. 
+
+![alt text](image.png)
