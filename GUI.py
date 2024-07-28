@@ -1,5 +1,4 @@
 import wx
-from webscraperLogic import QueryEngine
 from Menu import MenuBar
 
 class Frame(wx.Frame):
@@ -9,13 +8,15 @@ class Frame(wx.Frame):
         # Store the query engine instance
         self.query_engine = query_engine
         
+        query_engine.print_config()
+        
         # Create a panel to hold the UI elements
         pnl = wx.Panel(self)
 
-        # Load sizes from the configuration file
-        query_text_size = self.query_engine.config['query_text_size']
-        result_text_size = self.query_engine.config['result_text_size']
-        frame_size = self.query_engine.config['frame_size']
+        # Define default sizes
+        query_text_size = [400, 100]
+        result_text_size = [400, 200]
+        frame_size = [800, 500]
         
         # Create a static text control for the welcome message
         welcome_text = wx.StaticText(pnl, label="Welcome to the r/ExplainLikeImFive Scraper!")
@@ -50,20 +51,18 @@ class Frame(wx.Frame):
         # Set the sizer for the panel
         pnl.SetSizer(sizer)
         
-        # Set the frame size from the configuration file
+        # Set the frame size from the default values
         self.SetSize(frame_size)
         
         # Set the frame title
         self.SetTitle("Reddit Query App")
         
+        # Set the menu bar
         self.SetMenuBar(MenuBar(self, query_engine))
 
     def on_search(self, event):
         """Handle the search button click event."""
-        # Get the query from the user input text control
         query = self.query_text.GetValue()
-        
-        # Get the search results from the query engine
         results = self.query_engine.get_reddit_posts(query)
         
         # Format the results into a string
@@ -72,16 +71,4 @@ class Frame(wx.Frame):
         # Display the results in the result text control
         self.result_text.SetValue(result_text)
 
-if __name__ == "__main__":
-    # Create the application instance
-    app = wx.App()
-    
-    # Create the query engine instance
-    query_engine = QueryEngine()
-    
-    # Create and show the main frame
-    frm = Frame(query_engine, None)
-    frm.Show()
-    
-    # Start the application main loop
-    app.MainLoop()
+
