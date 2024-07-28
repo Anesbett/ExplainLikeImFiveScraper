@@ -1,5 +1,4 @@
 import wx
-from webscraperLogic import QueryEngine
 from Menu import MenuBar
 
 class Frame(wx.Frame):
@@ -72,9 +71,4 @@ class Frame(wx.Frame):
         # Display the results in the result text control
         self.result_text.SetValue(result_text)
 
-if __name__ == "__main__":
-    app = wx.App()
-    query_engine = QueryEngine()
-    frm = Frame(query_engine, None)
-    frm.Show()
-    app.MainLoop()
+
