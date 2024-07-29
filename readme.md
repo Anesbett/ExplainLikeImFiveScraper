@@ -37,7 +37,8 @@ Welcome to the Reddit Query App! This application allows you to search for posts
    CLIENT_SECRET=your_client_secret
    USER_AGENT=your_user_agent
    ```
-   or use the "settings" button when starting the applicaiton 
+   or use the "settings" button when starting the applicaiton
+   You will need to go to https://www.reddit.com/prefs/apps and create an app to get the client ID and secret. Here is another thread where you can see how to do that: https://www.reddit.com/r/redditdev/comments/hasnnc/where_do_i_find_the_reddit_client_id_and_secret/
 
 ## Usage
 
